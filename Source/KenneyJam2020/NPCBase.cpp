@@ -19,28 +19,24 @@ void ANPCBase::BeginPlay()
 	
 }
 
-void ANPCBase::BeginDestroy()
+void ANPCBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	Super::BeginDestroy();
-
-	//Add actor to dead array
-	AKenneyJam2020GameModeBase* GameMode = Cast<AKenneyJam2020GameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-	if(GameMode)
-		GameMode->DeadNPCArray.Add(this);
+	Super::EndPlay(EndPlayReason);
 
 	//Update status of other NPC's
 	TArray<AActor*> NPCArray;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANPCBase::GetClass(), NPCArray);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANPCBase::StaticClass(), NPCArray);
 	for (AActor* NPC : NPCArray)
 	{
-		NPC = Cast<ANPCBase>(NPC);
-		if (FriendRef == this)
+		ANPCBase* NPCRef = Cast<ANPCBase>(NPC);
+		if (NPCRef->FriendRef == this)
 		{
-			PlayerRelation = Sad;
+			NPCRef->PlayerRelation = Sad;
+			NPCRef->VillagerDeath();
 		}
-		else if (EnemyRef == this)
+		else if (NPCRef->EnemyRef == this)
 		{
-			PlayerRelation = Happy;
+			NPCRef->PlayerRelation = Happy;
 		}
 	}
 }

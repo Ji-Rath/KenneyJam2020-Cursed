@@ -5,6 +5,7 @@
 #include "NPCBase.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 
@@ -81,10 +82,20 @@ void APlayerBase::MoveRight(float AxisValue)
 void APlayerBase::Interact()
 {
 	//If interact NPC is valid, show random emote bubble based on relation
-	if (IsValid(InteractRef) && !InteractRef->bSleeping)
+	if (IsValid(InteractRef))
 	{
-		InteractRef->PlayerInteract();
-		bInteracting = true;
+		if (!InteractRef->bSleeping)
+		{
+			InteractRef->PlayerInteract();
+			bInteracting = true;
+			InteractRef->TalkingTo = this;
+		}
+		else
+		{
+			SacrificeMessage(InteractRef);
+		}
+		if(SoundNPC)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundNPC, GetActorLocation());
 	}
 }
 

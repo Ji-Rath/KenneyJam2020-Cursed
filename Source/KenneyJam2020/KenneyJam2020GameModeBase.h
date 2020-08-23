@@ -22,9 +22,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 TimeOfDay = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<class ANPCBase*> DeadNPCArray;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

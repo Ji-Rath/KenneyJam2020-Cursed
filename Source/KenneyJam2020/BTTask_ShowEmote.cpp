@@ -12,12 +12,11 @@ EBTNodeResult::Type UBTTask_FindObjectLocation::ExecuteTask(UBehaviorTreeCompone
 	ANPCBase* NPC = Cast<ANPCBase>(OwnerComp.GetAIOwner()->GetPawn());
 	if (IsValid(NPC))
 	{
-		NPC->ShowEmotion(NPC->HappyEmote[RandInt], 5.f);
-
 		ANPCBase* FriendNPC = Cast<ANPCBase>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(GetSelectedBlackboardKey()));
-		if (IsValid(FriendNPC))
+		if (IsValid(FriendNPC) && !FriendNPC->TalkingTo)
 		{
 			FriendNPC->ShowEmotion(FriendNPC->HappyEmote[RandInt], 5.f);
+			NPC->ShowEmotion(NPC->HappyEmote[RandInt], 5.f);
 			FriendNPC->TalkingTo = NPC;
 		}
 	}

@@ -46,6 +46,12 @@ public:
 	UPROPERTY(EditAnywhere)
 	float SpringArmSpeed = 5.f;
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SacrificeMessage(ANPCBase* NPCReference);
+
+	UPROPERTY(EditAnywhere);
+	USoundBase* SoundNPC;
+
 private:
 	void MoveForward(float AxisValue);
 
