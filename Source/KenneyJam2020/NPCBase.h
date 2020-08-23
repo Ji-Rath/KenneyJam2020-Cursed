@@ -29,6 +29,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void BeginDestroy() override;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -52,5 +54,41 @@ public:
 	AInterestLocation* WorkLocation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	AInterestLocation* TownSquareLocation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TEnumAsByte<Happiness> PlayerRelation = Neutral;
+
+	//Friend NPC
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ANPCBase* FriendRef;
+
+	//Nemesis NPC
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ANPCBase* EnemyRef;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void VillagerDeath();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void ShowEmotion(UTexture2D* Texture, float Duration) const;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<UTexture2D*> SadEmote;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<UTexture2D*> HappyEmote;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<UTexture2D*> NeutralEmote;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bSleeping = false;
+
+	//Called to show emote bubble when player interacts with NPC
+	UFUNCTION()
+	void PlayerInteract();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	ACharacter* TalkingTo;
 };

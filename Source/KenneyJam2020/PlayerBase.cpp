@@ -2,7 +2,11 @@
 
 
 #include "PlayerBase.h"
+#include "NPCBase.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Components/BoxComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
 
 // Sets default values
 APlayerBase::APlayerBase()
@@ -10,6 +14,16 @@ APlayerBase::APlayerBase()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	//Setup spring arm component
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm"));
+	SpringArm->SetupAttachment(RootComponent);
+
+	//Setup camera component
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(SpringArm);
+
+	BoxInteract = CreateDefaultSubobject<UBoxComponent>(TEXT("Sphere Interact"));
+	BoxInteract->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -17,6 +31,10 @@ void APlayerBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	OnActorBeginOverlap.AddDynamic(this, &APlayerBase::OnOverlap);
+	OnActorEndOverlap.AddDynamic(this, &APlayerBase::OnEndOverlap);
+
+	SpringArmLength = SpringArm->TargetArmLength;
 }
 
 // Called every frame
@@ -24,6 +42,15 @@ void APlayerBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//Manage spring arm length transitions when interacting
+	if (bInteracting && SpringArm->TargetArmLength >= SpringArmInteractLength)
+	{
+		SpringArm->TargetArmLength = UKismetMathLibrary::FInterpTo(SpringArm->TargetArmLength, SpringArmInteractLength, DeltaTime, SpringArmSpeed);
+	}
+	else
+	{
+		SpringArm->TargetArmLength = UKismetMathLibrary::FInterpTo(SpringArm->TargetArmLength, SpringArmLength, DeltaTime, SpringArmSpeed);
+	}
 }
 
 // Called to bind functionality to input
@@ -53,6 +80,28 @@ void APlayerBase::MoveRight(float AxisValue)
 
 void APlayerBase::Interact()
 {
+	//If interact NPC is valid, show random emote bubble based on relation
+	if (IsValid(InteractRef) && !InteractRef->bSleeping)
+	{
+		InteractRef->PlayerInteract();
+		bInteracting = true;
+	}
+}
 
+void APlayerBase::OnOverlap(AActor* OverlappedActor, AActor* OtherActor)
+{
+	if (Cast<ANPCBase>(OtherActor))
+	{
+		InteractRef = Cast<ANPCBase>(OtherActor);
+	}
+}
+
+void APlayerBase::OnEndOverlap(AActor* OverlappedActor, AActor* OtherActor)
+{
+	if (Cast<ANPCBase>(OtherActor))
+	{
+		InteractRef = nullptr;
+		bInteracting = false;
+	}
 }
 
